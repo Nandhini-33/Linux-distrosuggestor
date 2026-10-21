@@ -245,6 +245,10 @@ def is_linux_related(text: str, history: Optional[List[Dict[str, str]]] = None) 
         if re.search(pat, t):
             return True
 
+    # 5. Quiz result inquiries
+    if any(q in t for q in ["my result", "quiz result", "why did you recommend", "why did you suggest", "explain my result"]):
+        return True
+
     # 5. Check if this is an answer to a prior assistant question (multi-turn context)
     if history and len(history) > 0:
         # Check if the last assistant message asked a question
@@ -381,7 +385,7 @@ def extract_specs_from_text(text: str) -> Tuple[Dict[str, Any], int]:
         signals += 2
     elif any(k in t for k in ["cybersecurity", "security", "ethical hacking", "penetration", "pentest"]):
         profile["purpose"] = "Security"
-        profile["experience"] = "Intermediate"
+        profile["experience"] = "Advanced"
         signals += 2
     elif any(k in t for k in ["gaming", "game", "games", "steam", "gpu"]):
         profile["purpose"] = "Gaming"
@@ -804,6 +808,21 @@ def process_chat_message(
                     }
 
                 clean_reply, rec_card = parse_recommendation_card(raw_ai_reply)
+
+                # If AI model provided advice without JSON block, but user provided clear signals, attach card
+                if not rec_card and (signals >= 2 or ("ram" in msg_clean.lower() and any(p in msg_clean.lower() for p in ["gaming", "coding", "old", "ai", "study", "security"]))):
+                    rec_result = calculate_recommendation(extracted_specs)
+                    best = rec_result["best_match"]
+                    rec_card = {
+                        "id": best["id"],
+                        "name": best["name"],
+                        "match_percentage": best["match_percentage"],
+                        "tagline": best.get("tagline", ""),
+                        "desktop_environment": best.get("desktop_environment", "Desktop UI"),
+                        "package_manager": best.get("package_manager", "Package manager"),
+                        "website": best.get("website", "#"),
+                        "badge": best.get("badge", "Top Match")
+                    }
 
                 # Determine dynamic suggestion chips
                 if rec_card:

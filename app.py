@@ -16,7 +16,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 from distro_data import DISTRIBUTIONS, get_all_distros, get_distro_by_id
 from recommender import calculate_recommendation
 from database import init_db, save_recommendation, get_recent_recommendations, get_distro_popularity
-from voice_engine import get_whisper_model, transcribe_audio_file, match_voice_to_option
+from voice_engine import transcribe_audio, match_voice_to_option
 from chat_advisor import process_chat_message
 
 logger = logging.getLogger(__name__)
@@ -25,11 +25,6 @@ app = Flask(__name__)
 
 # Initialize SQLite database on startup
 init_db()
-
-# Pre-load faster-whisper model once on server start (CPU, int8)
-if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
-    logger.info("Preloading faster-whisper model on server startup...")
-    get_whisper_model()
 
 @app.route("/")
 def index():
@@ -95,35 +90,51 @@ def api_chat_advisor():
 @app.route("/transcribe", methods=["POST"])
 def transcribe():
     """
-    Transcribes audio received from browser MediaRecorder (webm/ogg/wav),
-    maps spoken words to questionnaire option values, and returns JSON.
+    Transcribes audio received from browser MediaRecorder (webm/ogg/mp4) in-memory using Gemini,
+    maps spoken words to questionnaire option values if question is specified, and returns JSON.
     """
     if "audio" not in request.files:
         return jsonify({"success": False, "error": "No audio file provided"}), 400
 
     audio_file = request.files["audio"]
     question_key = request.form.get("question", "")
+    language_hint = request.form.get("language", "auto")
 
-    # Determine file extension based on mimetype
-    mimetype = audio_file.content_type or ""
-    suffix = ".webm"
-    if "ogg" in mimetype:
-        suffix = ".ogg"
-    elif "wav" in mimetype:
-        suffix = ".wav"
+    # Read audio into memory only - never save to disk
+    audio_bytes = audio_file.read()
+    if not audio_bytes:
+        return jsonify({"success": False, "error": "Empty audio file received"}), 400
 
-    tmp_path = None
+    if len(audio_bytes) > 4 * 1024 * 1024:
+        return jsonify({
+            "success": False,
+            "error_type": "file_too_large",
+            "error": "Audio file exceeds 4 MB limit."
+        }), 400
+
+    mimetype = audio_file.content_type or "audio/webm"
+
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-            tmp_path = tmp.name
-            audio_file.save(tmp_path)
+        success, transcript, error_type, error_msg = transcribe_audio(
+            audio_bytes=audio_bytes,
+            mime_type=mimetype,
+            language_hint=language_hint,
+            question_key=question_key
+        )
 
-        # For chat speech, allow whisper to auto-detect language (Tamil, Hindi, etc.)
-        lang = "en" if question_key != "chat" else None
-        transcript = transcribe_audio_file(tmp_path, language=lang)
+        if not success:
+            logger.warning(f"Audio transcription unsuccessful ({error_type}): {error_msg}")
+            return jsonify({
+                "success": False,
+                "error_type": error_type or "transcription_error",
+                "error": error_msg or "Failed to transcribe audio."
+            }), 200
+
         logger.info(f"Transcribed audio for '{question_key}': '{transcript}'")
 
-        matched_option = match_voice_to_option(question_key, transcript)
+        matched_option = None
+        if question_key and question_key != "chat":
+            matched_option = match_voice_to_option(question_key, transcript)
 
         return jsonify({
             "success": True,
@@ -134,13 +145,11 @@ def transcribe():
         })
     except Exception as e:
         logger.error(f"Error during audio transcription: {e}")
-        return jsonify({"success": False, "error": str(e)}), 500
-    finally:
-        if tmp_path and os.path.exists(tmp_path):
-            try:
-                os.remove(tmp_path)
-            except Exception:
-                pass
+        return jsonify({
+            "success": False,
+            "error_type": "server_error",
+            "error": str(e)
+        }), 500
 
 @app.route("/recommend", methods=["POST"])
 def form_recommend():

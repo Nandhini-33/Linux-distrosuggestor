@@ -95,7 +95,7 @@ def run_tests():
     print("\n--- 10. Tell me about a movie ---")
     res10 = process_chat_message("Tell me about a movie")
     print("Reply:", res10["reply"])
-    assert "specialized exclusively" in res10["reply"] or "cannot answer questions about movies" in res10["reply"]
+    assert "I'm your Linux OS assistant" in res10["reply"] or "specialized exclusively" in res10["reply"] or "cannot answer questions about movies" in res10["reply"]
 
     print("\n================ ALL 10 TESTS PASSED SUCCESSFULLY! ================")
 

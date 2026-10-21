@@ -3,12 +3,18 @@ SQLite database management for Linux Distribution Advisor.
 Stores recommendation sessions, community recommendation statistics, and catalog data.
 """
 
+import os
+import tempfile
 import sqlite3
 import json
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 
-DB_PATH = "distro_advisor.db"
+# On Vercel, the root directory is read-only. Use /tmp instead.
+if os.environ.get("VERCEL"):
+    DB_PATH = os.path.join(tempfile.gettempdir(), "distro_advisor.db")
+else:
+    DB_PATH = os.environ.get("DB_PATH", "distro_advisor.db")
 
 def get_connection():
     """Create and return a database connection with dict-like row factory."""
@@ -18,40 +24,43 @@ def get_connection():
 
 def init_db():
     """Initialize SQLite tables."""
-    conn = get_connection()
-    cursor = conn.cursor()
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS recommendations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        timestamp TEXT NOT NULL,
-        ram TEXT NOT NULL,
-        experience TEXT NOT NULL,
-        purpose TEXT NOT NULL,
-        cpu TEXT NOT NULL,
-        storage TEXT NOT NULL,
-        preference TEXT NOT NULL,
-        prev_experience TEXT NOT NULL,
-        recommended_distro TEXT NOT NULL,
-        match_percentage INTEGER NOT NULL,
-        alternatives_json TEXT NOT NULL,
-        reasons_json TEXT NOT NULL
-    )
-    """)
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS recommendations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            ram TEXT NOT NULL,
+            experience TEXT NOT NULL,
+            purpose TEXT NOT NULL,
+            cpu TEXT NOT NULL,
+            storage TEXT NOT NULL,
+            preference TEXT NOT NULL,
+            prev_experience TEXT NOT NULL,
+            recommended_distro TEXT NOT NULL,
+            match_percentage INTEGER NOT NULL,
+            alternatives_json TEXT NOT NULL,
+            reasons_json TEXT NOT NULL
+        )
+        """)
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS user_feedback (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        recommendation_id INTEGER,
-        rating INTEGER,
-        comment TEXT,
-        created_at TEXT,
-        FOREIGN KEY (recommendation_id) REFERENCES recommendations(id)
-    )
-    """)
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_feedback (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            recommendation_id INTEGER,
+            rating INTEGER,
+            comment TEXT,
+            created_at TEXT,
+            FOREIGN KEY (recommendation_id) REFERENCES recommendations(id)
+        )
+        """)
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Database initialization notice: {e}")
 
 def save_recommendation(user_input: Dict[str, Any], result: Dict[str, Any]) -> int:
     """Store recommendation query and returned result into SQLite."""
