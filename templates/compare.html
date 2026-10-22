@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Compare Linux Distributions - Side-by-Side Specifications{% endblock %}
+
+{% block content %}
+<section class="container" style="padding-top: 3rem; padding-bottom: 5rem;">
+  <div style="text-align: center; max-width: 700px; margin: 0 auto 3rem;">
+    <h1 class="page-title">Side-by-Side Comparison</h1>
+    <p class="page-subtitle">
+      Compare hardware overhead, desktop environments, package managers, and pros &amp; cons between any distributions.
+    </p>
+  </div>
+
+  <div class="compare-table-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width: 22%;">Feature / Metric</th>
+          <th style="width: 26%;">
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.75rem; color: var(--text-muted);">DISTRO 1</label>
+            <select id="selectDistro1" class="compare-select">
+              {% for d in distros %}
+                <option value="{{ d.id }}" {% if d1 and d.id == d1.id %}selected{% endif %}>{{ d.name }}</option>
+              {% endfor %}
+            </select>
+          </th>
+          <th style="width: 26%;">
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.75rem; color: var(--text-muted);">DISTRO 2</label>
+            <select id="selectDistro2" class="compare-select">
+              {% for d in distros %}
+                <option value="{{ d.id }}" {% if d2 and d.id == d2.id %}selected{% endif %}>{{ d.name }}</option>
+              {% endfor %}
+            </select>
+          </th>
+          <th style="width: 26%;">
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.75rem; color: var(--text-muted);">DISTRO 3 (OPTIONAL)</label>
+            <select id="selectDistro3" class="compare-select">
+              <option value="">-- None Selected --</option>
+              {% for d in distros %}
+                <option value="{{ d.id }}" {% if d3 and d.id == d3.id %}selected{% endif %}>{{ d.name }}</option>
+              {% endfor %}
+            </select>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Logos & Names -->
+        <tr>
+          <td><strong>Distribution</strong></td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <img src="/static/images/distros/{{ d1.id }}.svg" alt="{{ d1.name }}" style="width: 36px; height: 36px;">
+              <div>
+                <strong>{{ d1.name }}</strong>
+                <span style="display: block; font-size: 0.75rem; color: var(--text-muted);">{{ d1.family }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            {% if d2 %}
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <img src="/static/images/distros/{{ d2.id }}.svg" alt="{{ d2.name }}" style="width: 36px; height: 36px;">
+              <div>
+                <strong>{{ d2.name }}</strong>
+                <span style="display: block; font-size: 0.75rem; color: var(--text-muted);">{{ d2.family }}</span>
+              </div>
+            </div>
+            {% else %}-{% endif %}
+          </td>
+          <td>
+            {% if d3 %}
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <img src="/static/images/distros/{{ d3.id }}.svg" alt="{{ d3.name }}" style="width: 36px; height: 36px;">
+              <div>
+                <strong>{{ d3.name }}</strong>
+                <span style="display: block; font-size: 0.75rem; color: var(--text-muted);">{{ d3.family }}</span>
+              </div>
+            </div>
+            {% else %}<span style="color: var(--text-muted);">Select a third distro above</span>{% endif %}
+          </td>
+        </tr>
+
+        <!-- RAM -->
+        <tr>
+          <td><strong>RAM Requirement</strong></td>
+          <td>{{ d1.min_ram_gb }} GB Min ({{ d1.rec_ram_gb }} GB Rec)</td>
+          <td>{{ d2.min_ram_gb if d2 else '-' }} GB Min ({{ d2.rec_ram_gb if d2 else '-' }} GB Rec)</td>
+          <td>{% if d3 %}{{ d3.min_ram_gb }} GB Min ({{ d3.rec_ram_gb }} GB Rec){% else %}-{% endif %}</td>
+        </tr>
+
+        <!-- Storage -->
+        <tr>
+          <td><strong>Storage Space</strong></td>
+          <td>{{ d1.min_storage_gb }} GB Min ({{ d1.rec_storage_gb }} GB Rec)</td>
+          <td>{{ d2.min_storage_gb if d2 else '-' }} GB Min ({{ d2.rec_storage_gb if d2 else '-' }} GB Rec)</td>
+          <td>{% if d3 %}{{ d3.min_storage_gb }} GB Min ({{ d3.rec_storage_gb }} GB Rec){% else %}-{% endif %}</td>
+        </tr>
+
+        <!-- Desktop Environment -->
+        <tr>
+          <td><strong>Desktop Environment</strong></td>
+          <td>{{ d1.desktop_environment }}</td>
+          <td>{{ d2.desktop_environment if d2 else '-' }}</td>
+          <td>{{ d3.desktop_environment if d3 else '-' }}</td>
+        </tr>
+
+        <!-- Package Manager -->
+        <tr>
+          <td><strong>Package Manager</strong></td>
+          <td>{{ d1.package_manager }}</td>
+          <td>{{ d2.package_manager if d2 else '-' }}</td>
+          <td>{{ d3.package_manager if d3 else '-' }}</td>
+        </tr>
+
+        <!-- Release Cycle -->
+        <tr>
+          <td><strong>Release Cycle</strong></td>
+          <td>{{ d1.release_model }}</td>
+          <td>{{ d2.release_model if d2 else '-' }}</td>
+          <td>{{ d3.release_model if d3 else '-' }}</td>
+        </tr>
+
+        <!-- Target Experience -->
+        <tr>
+          <td><strong>Target User Level</strong></td>
+          <td>{{ d1.target_experience | join(', ') }}</td>
+          <td>{{ d2.target_experience | join(', ') if d2 else '-' }}</td>
+          <td>{{ d3.target_experience | join(', ') if d3 else '-' }}</td>
+        </tr>
+
+        <!-- Primary Purposes -->
+        <tr>
+          <td><strong>Best Suited For</strong></td>
+          <td>{{ d1.primary_purposes | join(', ') }}</td>
+          <td>{{ d2.primary_purposes | join(', ') if d2 else '-' }}</td>
+          <td>{{ d3.primary_purposes | join(', ') if d3 else '-' }}</td>
+        </tr>
+
+        <!-- Pros -->
+        <tr>
+          <td><strong>Top Advantages</strong></td>
+          <td>
+            <ul style="padding-left: 1.1rem; font-size: 0.88rem; line-height: 1.4;">
+              {% for p in d1.pros %}
+                <li>{{ p }}</li>
+              {% endfor %}
+            </ul>
+          </td>
+          <td>
+            {% if d2 %}
+            <ul style="padding-left: 1.1rem; font-size: 0.88rem; line-height: 1.4;">
+              {% for p in d2.pros %}
+                <li>{{ p }}</li>
+              {% endfor %}
+            </ul>
+            {% else %}-{% endif %}
+          </td>
+          <td>
+            {% if d3 %}
+            <ul style="padding-left: 1.1rem; font-size: 0.88rem; line-height: 1.4;">
+              {% for p in d3.pros %}
+                <li>{{ p }}</li>
+              {% endfor %}
+            </ul>
+            {% else %}-{% endif %}
+          </td>
+        </tr>
+
+        <!-- Cons -->
+        <tr>
+          <td><strong>Trade-offs</strong></td>
+          <td>
+            <ul style="padding-left: 1.1rem; font-size: 0.88rem; line-height: 1.4;">
+              {% for c in d1.cons %}
+                <li>{{ c }}</li>
+              {% endfor %}
+            </ul>
+          </td>
+          <td>
+            {% if d2 %}
+            <ul style="padding-left: 1.1rem; font-size: 0.88rem; line-height: 1.4;">
+              {% for c in d2.cons %}
+                <li>{{ c }}</li>
+              {% endfor %}
+            </ul>
+            {% else %}-{% endif %}
+          </td>
+          <td>
+            {% if d3 %}
+            <ul style="padding-left: 1.1rem; font-size: 0.88rem; line-height: 1.4;">
+              {% for c in d3.cons %}
+                <li>{{ c }}</li>
+              {% endfor %}
+            </ul>
+            {% else %}-{% endif %}
+          </td>
+        </tr>
+
+        <!-- Links -->
+        <tr>
+          <td><strong>Official Links</strong></td>
+          <td>
+            <a href="{{ d1.website }}" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+              Visit Website
+            </a>
+          </td>
+          <td>
+            {% if d2 %}
+            <a href="{{ d2.website }}" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+              Visit Website
+            </a>
+            {% else %}-{% endif %}
+          </td>
+          <td>
+            {% if d3 %}
+            <a href="{{ d3.website }}" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+              Visit Website
+            </a>
+            {% else %}-{% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/compare.js') }}"></script>
+{% endblock %}

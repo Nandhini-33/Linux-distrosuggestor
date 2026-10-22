@@ -1,0 +1,127 @@
+<!-- Floating Linux Advisor Chat Assistant Widget (Available on every page) -->
+<div id="advisorChatWidget" class="advisor-chat-widget">
+  
+  <!-- Floating Launcher Button -->
+  <button type="button" id="chatLauncherBtn" class="chat-launcher-btn" aria-label="Open Linux Advisor Assistant" title="Chat with Linux Advisor">
+    <div class="launcher-icon-wrap">
+      <!-- Tux / Chat Icon -->
+      <span class="launcher-icon">🐧</span>
+      <span class="launcher-badge" id="chatNotificationBadge">1</span>
+    </div>
+    <span class="launcher-label">Ask Linux Advisor</span>
+  </button>
+
+  <!-- Chat Window Panel -->
+  <div id="chatWindowPanel" class="chat-window-panel" style="display: none;" role="dialog" aria-labelledby="chatHeaderTitle">
+    
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <div class="chat-header-identity">
+        <div class="chat-avatar">
+          <span>🐧</span>
+        </div>
+        <div>
+          <h4 id="chatHeaderTitle" class="chat-title">Linux Advisor Assistant</h4>
+          <span class="chat-subtitle">Voice &amp; Text Distro Specialist</span>
+        </div>
+      </div>
+      
+      <div class="chat-header-actions">
+        <!-- Language Selector -->
+        <select id="chatLanguageSelect" class="chat-lang-select" title="Voice Language" aria-label="Select voice recognition language">
+          <option value="auto">🌐 Auto</option>
+          <option value="en">English</option>
+          <option value="ta">தமிழ் (Tamil)</option>
+          <option value="hi">हिन्दी (Hindi)</option>
+          <option value="ml">മലയാളം (Malayalam)</option>
+          <option value="te">తెలుగు (Telugu)</option>
+        </select>
+        <!-- Voice Mode Button -->
+        <button type="button" id="chatVoiceModeBtn" class="chat-action-btn" title="Toggle Auto-Speak Replies aloud">
+          <span class="vm-icon">🔊</span>
+          <span class="vm-text">Voice Mode</span>
+        </button>
+        <!-- Close Button -->
+        <button type="button" id="chatCloseBtn" class="chat-action-btn close-btn" title="Close chat" aria-label="Close chat">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Recording Banner (Inside Chat with Live 30s Timer) -->
+    <div id="chatRecordingBanner" class="chat-recording-banner" style="display: none;">
+      <div class="chat-recording-content">
+        <div class="chat-sound-wave">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="chat-rec-info">
+          <span id="chatRecordingStatusText">Listening... Speak now</span>
+          <span id="chatRecordingTimer" class="chat-rec-timer">00:00 / 00:30</span>
+        </div>
+        <button type="button" id="chatStopRecordingBtn" class="chat-stop-rec-btn">
+          ⏹️ Stop
+        </button>
+      </div>
+    </div>
+
+    <!-- Microphone Fallback Notice -->
+    <div id="chatMicFallback" class="chat-fallback-notice" style="display: none;">
+      <span>⚠️ Microphone unavailable. You can type your questions below!</span>
+    </div>
+
+    <!-- Chat Messages Scroll Container -->
+    <div id="chatMessagesContainer" class="chat-messages-container">
+      <!-- Initial Welcome Message -->
+      <div class="chat-msg assistant">
+        <div class="msg-bubble">
+          <p>
+            👋 <strong>Welcome!</strong> I'm your Linux Distribution Advisor.
+            Tell me about your computer specs (like RAM or CPU) or what you plan to do (gaming, coding, office work, or reviving an old laptop), and I'll find your ideal Linux distribution!
+          </p>
+          <!-- Quick suggestions -->
+          <div class="chat-quick-chips">
+            <button type="button" class="quick-chip" data-query="Best distro for gaming with 16GB RAM">🎮 Gaming (16GB RAM)</button>
+            <button type="button" class="quick-chip" data-query="I want a distro for Python programming and web dev">💻 Programming &amp; Dev</button>
+            <button type="button" class="quick-chip" data-query="Old laptop with 2GB RAM and dual core">🚀 Old Laptop (2GB RAM)</button>
+            <button type="button" class="quick-chip" data-query="Easiest Linux for a Windows beginner">🌱 Windows Switcher</button>
+          </div>
+        </div>
+        <span class="msg-time">Just now</span>
+      </div>
+    </div>
+
+    <!-- Typing Indicator -->
+    <div id="chatTypingIndicator" class="chat-typing-indicator" style="display: none;">
+      <div class="typing-bubble">
+        <span></span><span></span><span></span>
+      </div>
+      <span class="typing-text">Finding best Linux distribution...</span>
+    </div>
+
+    <!-- Voice Transcript Review Bar (User can edit recognized text before sending) -->
+    <div id="chatVoicePreviewBar" class="chat-voice-preview-bar" style="display: none;">
+      <div class="preview-text-wrap">
+        <span class="preview-icon">🎙️</span>
+        <span id="chatVoicePreviewStatus" class="preview-status">Recognized! Sending in <strong id="chatAutoSendCountdown">3</strong>s...</span>
+      </div>
+      <button type="button" id="chatCancelAutoSendBtn" class="chat-preview-cancel-btn" title="Pause auto-send to edit your message">
+        ✏️ Edit text
+      </button>
+    </div>
+
+    <!-- Chat Input Area -->
+    <div class="chat-input-row">
+      <input type="text" id="chatTextInput" class="chat-text-input" placeholder="Ask about RAM, gaming, coding, distros..." autocomplete="off">
+      
+      <!-- Microphone Button -->
+      <button type="button" id="chatMicInputBtn" class="chat-icon-btn mic-btn" title="Speak your question aloud" aria-label="Speak your question">
+        🎤
+      </button>
+
+      <!-- Send Button -->
+      <button type="button" id="chatSendInputBtn" class="chat-icon-btn send-btn" title="Send message" aria-label="Send message">
+        ➤
+      </button>
+    </div>
+  </div>
+</div>

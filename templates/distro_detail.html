@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}{{ distro.name }} - Overview &amp; Specifications | Linux Distribution Advisor{% endblock %}
+
+{% block content %}
+<section class="container" style="padding: 3rem 1.5rem 5rem;">
+  <div style="margin-bottom: 2rem;">
+    <a href="/distros" style="color: var(--text-muted); font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+      ← Back to all distributions
+    </a>
+  </div>
+
+  <div class="advisor-card" style="margin-bottom: 3rem;">
+    <div class="match-header-row">
+      <div class="match-identity">
+        <img src="/static/images/distros/{{ distro.id }}.svg" alt="{{ distro.name }}" class="distro-logo-large">
+        <div>
+          <span class="match-badge">{{ distro.badge }}</span>
+          <h1 class="match-distro-name">{{ distro.name }}</h1>
+          <p class="match-tagline">{{ distro.tagline }}</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <a href="{{ distro.website }}" target="_blank" rel="noopener" class="btn btn-accent">
+          <span>🌐</span> Official ISO Download
+        </a>
+        <a href="/compare?d1={{ distro.id }}" class="btn btn-secondary">
+          <span>⚖️</span> Compare
+        </a>
+      </div>
+    </div>
+
+    <!-- Tech specs chips -->
+    <div class="specs-matrix">
+      <div class="spec-chip">
+        <span class="spec-key">Minimum RAM</span>
+        <span class="spec-val">{{ distro.min_ram_gb }} GB</span>
+      </div>
+      <div class="spec-chip">
+        <span class="spec-key">Recommended RAM</span>
+        <span class="spec-val">{{ distro.rec_ram_gb }} GB</span>
+      </div>
+      <div class="spec-chip">
+        <span class="spec-key">Minimum Storage</span>
+        <span class="spec-val">{{ distro.min_storage_gb }} GB</span>
+      </div>
+      <div class="spec-chip">
+        <span class="spec-key">Recommended Storage</span>
+        <span class="spec-val">{{ distro.rec_storage_gb }} GB</span>
+      </div>
+      <div class="spec-chip">
+        <span class="spec-key">Desktop Environment</span>
+        <span class="spec-val">{{ distro.desktop_environment }}</span>
+      </div>
+      <div class="spec-chip">
+        <span class="spec-key">Package Manager</span>
+        <span class="spec-val">{{ distro.package_manager }}</span>
+      </div>
+      <div class="spec-chip">
+        <span class="spec-key">Parent Family</span>
+        <span class="spec-val">{{ distro.family }}</span>
+      </div>
+      <div class="spec-chip">
+        <span class="spec-key">Release Model</span>
+        <span class="spec-val">{{ distro.release_model }}</span>
+      </div>
+    </div>
+
+    <!-- Target Audience & Purpose -->
+    <div style="background: var(--bg-primary); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 2rem;">
+      <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--accent-indigo);">Target Audience &amp; Strengths</h3>
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+        <div>
+          <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">EXPERIENCE LEVEL</span>
+          <div style="display: flex; gap: 0.5rem;">
+            {% for exp in distro.target_experience %}
+              <span style="background: var(--bg-elevated); padding: 0.25rem 0.65rem; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 600;">{{ exp }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div>
+          <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">PRIMARY PURPOSES</span>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            {% for purp in distro.primary_purposes %}
+              <span style="background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo); padding: 0.25rem 0.65rem; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 600;">{{ purp }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div>
+          <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">TAGS</span>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            {% for tag in distro.preference_tags %}
+              <span style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green); padding: 0.25rem 0.65rem; border-radius: var(--radius-full); font-size: 0.85rem; font-weight: 600;">{{ tag }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pros & Cons -->
+    <div class="pros-cons-grid">
+      <div class="pro-card">
+        <h4><span>👍</span> Detailed Advantages</h4>
+        <ul class="pro-con-list">
+          {% for p in distro.pros %}
+            <li><span>+</span><span>{{ p }}</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="con-card">
+        <h4><span>⚠️</span> Honest Trade-offs</h4>
+        <ul class="pro-con-list">
+          {% for c in distro.cons %}
+            <li><span>-</span><span>{{ c }}</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Documentation & Next Steps -->
+    <div style="margin-top: 2rem; border-top: 1px solid var(--border-subtle); padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <strong>Need official documentation or guides?</strong>
+        <p style="color: var(--text-muted); font-size: 0.88rem;">Consult the community-maintained handbooks for verified installation instructions.</p>
+      </div>
+      <a href="{{ distro.docs_url }}" target="_blank" rel="noopener" class="btn btn-secondary">
+        <span>📚</span> Open Official Documentation
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

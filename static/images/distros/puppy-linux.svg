@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="48" fill="#4A708B"/>
+  <!-- Paw print motif -->
+  <ellipse cx="50" cy="62" rx="14" ry="11" fill="#FFFFFF"/>
+  <circle cx="32" cy="42" r="6" fill="#FFFFFF"/>
+  <circle cx="44" cy="34" r="6" fill="#FFFFFF"/>
+  <circle cx="56" cy="34" r="6" fill="#FFFFFF"/>
+  <circle cx="68" cy="42" r="6" fill="#FFFFFF"/>
+</svg>

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Beginner's Guide to Linux - How to Create a Bootable USB &amp; Install | Linux Distribution Advisor{% endblock %}
+
+{% block content %}
+<section class="container" style="padding-top: 3rem; padding-bottom: 5rem; max-width: 900px;">
+  <div style="text-align: center; margin-bottom: 3.5rem;">
+    <span class="hero-pill">📖 Complete First-Time Handbook</span>
+    <h1 class="page-title">The Absolute Beginner's Guide to Linux</h1>
+    <p class="page-subtitle">
+      Got your recommendation? Here is how to test it risk-free on your computer without erasing your Windows files or affecting your current setup.
+    </p>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="guide-step-card">
+    <span class="guide-step-number">STEP 1</span>
+    <h3>Download the ISO File</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+      An <strong>ISO file</strong> is an exact digital clone of an installation DVD or drive. When you visit the official website of your recommended distro (e.g. Linux Mint, Ubuntu, Fedora), click on the 64-bit ISO download button.
+    </p>
+    <div style="background: var(--bg-elevated); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.9rem;">
+      💡 <strong>Pro Tip:</strong> For most users, choose the default desktop edition (e.g. Linux Mint Cinnamon, Ubuntu Desktop LTS, or Fedora Workstation). The file is typically 2GB to 4GB in size.
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="guide-step-card">
+    <span class="guide-step-number">STEP 2</span>
+    <h3>Create a Bootable USB Flash Drive</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+      You will need a clean USB flash drive (at least 8 GB). You cannot simply drag-and-drop the ISO file into the flash drive; you must "flash" it using a boot creation tool.
+    </p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+      <div style="background: var(--bg-primary); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-sm);">
+        <strong style="color: var(--accent-indigo); font-size: 1.05rem;">Ventoy (Recommended)</strong>
+        <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 0.5rem 0;">Install Ventoy once to your USB. After that, you can simply drag &amp; drop multiple ISO files straight onto the USB!</p>
+        <a href="https://www.ventoy.net" target="_blank" rel="noopener" style="color: var(--accent-indigo); font-weight: 600; font-size: 0.85rem;">Download Ventoy →</a>
+      </div>
+      <div style="background: var(--bg-primary); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-sm);">
+        <strong style="color: var(--accent-green); font-size: 1.05rem;">Rufus (Windows)</strong>
+        <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 0.5rem 0;">The most popular standalone tool on Windows. Select your USB drive, choose the ISO, leave partition scheme as GPT/UEFI, and click Start.</p>
+        <a href="https://rufus.ie" target="_blank" rel="noopener" style="color: var(--accent-green); font-weight: 600; font-size: 0.85rem;">Download Rufus →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="guide-step-card">
+    <span class="guide-step-number">STEP 3</span>
+    <h3>Boot from Your USB Flash Drive</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+      Insert your prepared USB drive into your PC. Turn the PC completely off, then turn it on and immediately tap your brand's <strong>Boot Menu key</strong> continuously until the menu appears:
+    </p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+      <div style="background: var(--bg-primary); padding: 0.75rem; text-align: center; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+        <div style="font-size: 0.75rem; color: var(--text-muted);">DELL / LENOVO</div>
+        <strong style="color: var(--accent-indigo); font-size: 1.1rem;">F12</strong>
+      </div>
+      <div style="background: var(--bg-primary); padding: 0.75rem; text-align: center; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+        <div style="font-size: 0.75rem; color: var(--text-muted);">HP</div>
+        <strong style="color: var(--accent-indigo); font-size: 1.1rem;">F9 or Esc</strong>
+      </div>
+      <div style="background: var(--bg-primary); padding: 0.75rem; text-align: center; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+        <div style="font-size: 0.75rem; color: var(--text-muted);">ASUS / ACER</div>
+        <strong style="color: var(--accent-indigo); font-size: 1.1rem;">F8 or F12</strong>
+      </div>
+      <div style="background: var(--bg-primary); padding: 0.75rem; text-align: center; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+        <div style="font-size: 0.75rem; color: var(--text-muted);">CUSTOM DESKTOP</div>
+        <strong style="color: var(--accent-indigo); font-size: 1.1rem;">F11 or Del</strong>
+      </div>
+    </div>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+      Select your USB Drive (often labeled <em>UEFI: USB Flash Drive</em>) and press Enter.
+    </p>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="guide-step-card">
+    <span class="guide-step-number">STEP 4</span>
+    <h3>The "Live Environment" – Test Risk Free!</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+      One of Linux's greatest superpowers is the <strong>Live Session</strong>. The OS runs entirely from your RAM and USB. <strong>Nothing is written to your hard drive yet.</strong>
+    </p>
+    <ul style="color: var(--text-secondary); font-size: 0.92rem; padding-left: 1.25rem; line-height: 1.6;">
+      <li>Connect to your Wi-Fi network and verify internet connectivity.</li>
+      <li>Test audio playback via YouTube or a video.</li>
+      <li>Check keyboard brightness keys, touchpad gestures, and sleep mode.</li>
+      <li>If you don't like it, simply unplug the USB and reboot — your Windows or Mac is 100% untouched.</li>
+    </ul>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="guide-step-card">
+    <span class="guide-step-number">STEP 5</span>
+    <h3>Dual Booting vs Clean Installation</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+      When you click the desktop shortcut <em>"Install Linux"</em>, the graphical wizard gives you two safe choices:
+    </p>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div style="background: var(--bg-primary); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+        <strong style="color: var(--accent-blue);">Option A: Install Alongside Windows</strong>
+        <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.5rem;">
+          Shrinks your Windows partition safely. Every time you turn on your PC, a friendly menu (GRUB) lets you pick between Windows and Linux.
+        </p>
+      </div>
+      <div style="background: var(--bg-primary); padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+        <strong style="color: var(--accent-green);">Option B: Erase Disk &amp; Install Linux</strong>
+        <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 0.5rem;">
+          Best for dedicated or revived secondary laptops. Gives 100% of the drive to Linux for clean performance. (Back up personal files first!)
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHEATSHEET -->
+  <div class="guide-step-card">
+    <span class="guide-step-number">BONUS</span>
+    <h3>Essential Linux Terminal Cheat Sheet for Newcomers</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+      While modern distros like Mint and Zorin require zero terminal usage, having these basic commands handy makes troubleshooting effortless:
+    </p>
+
+    <div class="terminal-box">
+      # 1. Update package lists and upgrade apps (Ubuntu, Mint, Debian, Pop!_OS)<br>
+      sudo apt update &amp;&amp; sudo apt upgrade -y<br><br>
+      # 2. Check disk space available on your drives<br>
+      df -h<br><br>
+      # 3. Check memory (RAM) usage in real time<br>
+      free -m<br><br>
+      # 4. View directory contents<br>
+      ls -la<br><br>
+      # 5. Display system and kernel specs<br>
+      uname -r
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 3rem;">
+    <a href="/" class="btn btn-accent" style="font-size: 1.05rem; padding: 0.9rem 2rem;">
+      Ready? Take the Distro Advisor Quiz Now →
+    </a>
+  </div>
+</section>
+{% endblock %}

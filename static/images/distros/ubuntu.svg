@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="48" fill="#E95420"/>
+  <circle cx="50" cy="50" r="28" fill="none" stroke="#FFFFFF" stroke-width="7"/>
+  <!-- 3 friendship nodes -->
+  <circle cx="21" cy="50" r="6" fill="#FFFFFF"/>
+  <circle cx="64.5" cy="25" r="6" fill="#FFFFFF"/>
+  <circle cx="64.5" cy="75" r="6" fill="#FFFFFF"/>
+  <!-- gaps -->
+  <circle cx="21" cy="50" r="9" fill="none" stroke="#E95420" stroke-width="4"/>
+  <circle cx="64.5" cy="25" r="9" fill="none" stroke="#E95420" stroke-width="4"/>
+  <circle cx="64.5" cy="75" r="9" fill="none" stroke="#E95420" stroke-width="4"/>
+</svg>

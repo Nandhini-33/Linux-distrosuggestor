@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="48" fill="#0068C6"/>
+  <!-- Feather / leaf motif -->
+  <path d="M68 25 C45 35 32 55 35 75 C45 70 75 55 68 25 Z" fill="#FFFFFF"/>
+  <path d="M35 75 C48 55 58 40 68 25" stroke="#0068C6" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Explore Linux Distributions - Linux Distribution Advisor{% endblock %}
+
+{% block content %}
+<section class="container" style="padding-top: 3rem;">
+  <div style="text-align: center; max-width: 700px; margin: 0 auto 3rem;">
+    <h1 class="page-title">Explore All Linux Distributions</h1>
+    <p class="page-subtitle">
+      Browse our curated catalog of leading Linux operating systems. Filter by purpose or search by name to find specs, pros, and cons.
+    </p>
+
+    <!-- Search & Filter Controls -->
+    <div class="search-filter-bar">
+      <input type="text" id="distroSearchInput" class="search-input" placeholder="Search by name, desktop, or package manager (e.g., Mint, GNOME, Gaming)...">
+    </div>
+
+    <div class="filter-pills" id="filterPills">
+      <button type="button" class="filter-pill active" data-filter="all">All Distros</button>
+      <button type="button" class="filter-pill" data-filter="Beginner">Beginner Friendly</button>
+      <button type="button" class="filter-pill" data-filter="Gaming">Gaming</button>
+      <button type="button" class="filter-pill" data-filter="Programming">Programming</button>
+      <button type="button" class="filter-pill" data-filter="Lightweight">Lightweight</button>
+      <button type="button" class="filter-pill" data-filter="Security">Security</button>
+    </div>
+  </div>
+
+  <!-- Distros Catalog Grid -->
+  <div class="distro-catalog-grid" id="catalogGrid">
+    {% for d in distros %}
+    <div class="catalog-card" 
+         data-name="{{ d.name | lower }}" 
+         data-family="{{ d.family | lower }}"
+         data-experience="{{ d.target_experience | join(',') }}"
+         data-purposes="{{ d.primary_purposes | join(',') }}"
+         data-tags="{{ d.preference_tags | join(',') }}"
+         data-de="{{ d.desktop_environment | lower }}">
+      
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.85rem;">
+          <img src="/static/images/distros/{{ d.id }}.svg" alt="{{ d.name }}" style="width: 44px; height: 44px; border-radius: var(--radius-sm);">
+          <div>
+            <h3 style="font-size: 1.2rem; font-weight: 700;">{{ d.name }}</h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">{{ d.family }}</span>
+          </div>
+        </div>
+        <span style="font-size: 0.75rem; background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo); padding: 0.25rem 0.6rem; border-radius: var(--radius-full); font-weight: 700;">
+          {{ d.target_experience[0] }}
+        </span>
+      </div>
+
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem; flex-grow: 1; line-height: 1.5;">
+        {{ d.tagline }}
+      </p>
+
+      <div style="background: var(--bg-elevated); padding: 0.75rem 1rem; border-radius: var(--radius-sm); font-size: 0.82rem; margin-bottom: 1.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+        <div><strong>Min RAM:</strong> {{ d.min_ram_gb }} GB</div>
+        <div><strong>Storage:</strong> {{ d.min_storage_gb }} GB</div>
+        <div><strong>Desktop:</strong> {{ d.desktop_environment.split('(')[0] }}</div>
+        <div><strong>Package:</strong> {{ d.package_manager.split('/')[0] }}</div>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem;">
+        <a href="/distro/{{ d.id }}" class="btn btn-secondary" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 0.5rem;">
+          Details &amp; Specs
+        </a>
+        <a href="/compare?d1={{ d.id }}" class="btn btn-primary" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 0.5rem;">
+          Compare
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Real-time catalog search & filter
+  document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("distroSearchInput");
+    const filterPills = document.querySelectorAll(".filter-pill");
+    const cards = document.querySelectorAll(".catalog-card");
+
+    let currentFilter = "all";
+
+    function filterCards() {
+      const query = (searchInput.value || "").toLowerCase().trim();
+
+      cards.forEach(card => {
+        const name = card.dataset.name || "";
+        const de = card.dataset.de || "";
+        const exp = card.dataset.experience || "";
+        const purposes = card.dataset.purposes || "";
+        const tags = card.dataset.tags || "";
+
+        const matchesQuery = !query || name.includes(query) || de.includes(query) || purposes.toLowerCase().includes(query) || tags.toLowerCase().includes(query);
+        let matchesFilter = true;
+
+        if (currentFilter === "Beginner") {
+          matchesFilter = exp.includes("Beginner");
+        } else if (currentFilter === "Gaming") {
+          matchesFilter = purposes.includes("Gaming");
+        } else if (currentFilter === "Programming") {
+          matchesFilter = purposes.includes("Programming");
+        } else if (currentFilter === "Lightweight") {
+          matchesFilter = tags.includes("Lightweight");
+        } else if (currentFilter === "Security") {
+          matchesFilter = purposes.includes("Security");
+        }
+
+        if (matchesQuery && matchesFilter) {
+          card.style.display = "flex";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener("input", filterCards);
+    }
+
+    filterPills.forEach(pill => {
+      pill.addEventListener("click", () => {
+        filterPills.forEach(p => p.classList.remove("active"));
+        pill.classList.add("active");
+        currentFilter = pill.dataset.filter;
+        filterCards();
+      });
+    });
+  });
+</script>
+{% endblock %}

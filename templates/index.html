@@ -1,0 +1,836 @@
+{% extends "base.html" %}
+
+{% block title %}Linux Distribution Advisor - Intelligent Distro Recommender{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container">
+    <div class="hero-pill">
+      <span>🐧</span> Open Source Decision Engine &amp; Voice Assistant
+    </div>
+    <h1 class="hero-title">
+      Find Your Perfect <br>
+      <span class="hero-gradient-text">Linux Distribution</span>
+    </h1>
+    <p class="hero-subtitle">
+      Overwhelmed by Ubuntu, Mint, Fedora, Debian, Arch, and Kali? Answer 7 simple questions about your PC and goals, or use your voice to speak your answers.
+    </p>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-number">{{ total_distros }}+</span>
+        <span class="stat-label">Distributions Indexed</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">🎙️ AI Voice</span>
+        <span class="stat-label">Audio Speech &amp; Mic</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">100%</span>
+        <span class="stat-label">Free &amp; Open Source</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Floating Voice Toast Notification -->
+<div id="voiceToast" class="voice-toast" style="display: none;"></div>
+
+<section class="container">
+  <div class="advisor-card" id="advisorMainCard">
+    <!-- Form Wizard Container -->
+    <div id="wizardFormContainer" {% if result %}style="display: none;"{% endif %}>
+
+      <!-- Voice Assistant Toolbar -->
+      <div class="voice-assistant-bar" id="voiceAssistantBar">
+        <div class="voice-bar-left">
+          <div class="voice-badge">
+            <span class="voice-dot" id="voiceDot"></span>
+            <span class="voice-status-text" id="voiceStatusText">Voice Assistant: Active</span>
+          </div>
+          <div class="voice-help-text" id="voiceHelpText">
+            Click <strong>🔊 Listen</strong> to hear questions or <strong>🎤 Speak</strong> to answer by voice.
+          </div>
+        </div>
+        <div class="voice-bar-right">
+          <select id="quizLanguageSelect" class="quiz-lang-select" title="Voice Input Language" aria-label="Select voice recognition language">
+            <option value="auto">🌐 Auto Language</option>
+            <option value="en">English</option>
+            <option value="ta">தமிழ் (Tamil)</option>
+            <option value="hi">हिन्दी (Hindi)</option>
+            <option value="ml">മലയാളம் (Malayalam)</option>
+            <option value="te">తెలుగు (Telugu)</option>
+          </select>
+          <label class="voice-toggle-label" title="Turn voice speech & audio assistant on or off">
+            <input type="checkbox" id="voiceAssistantToggle" checked>
+            <span class="voice-toggle-slider"></span>
+            <span class="voice-toggle-text">Voice Assistant</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Real-time Active Listening Banner (With 30s Countdown Timer) -->
+      <div class="listening-banner" id="listeningBanner" style="display: none;">
+        <div class="listening-content">
+          <div class="sound-wave">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="listening-info">
+            <strong id="listeningTitle">Listening to your answer...</strong>
+            <span id="listeningSubtitle">Speak your answer clearly into your microphone, then click Stop.</span>
+            <span id="quizRecordingTimer" class="quiz-rec-timer">00:00 / 00:30</span>
+          </div>
+          <button type="button" class="btn btn-secondary stop-recording-btn" id="activeStopRecordingBtn">
+            ⏹️ Stop Recording
+          </button>
+        </div>
+      </div>
+
+      <!-- Fallback Alert if Mic is blocked or not available -->
+      <div class="mic-fallback-alert" id="micFallbackAlert" style="display: none;">
+        <span class="alert-icon">⚠️</span>
+        <div>
+          <strong>Microphone Note:</strong>
+          <span id="micFallbackReason">Microphone access is unavailable or denied. The full questionnaire is 100% operational via mouse or touch selection.</span>
+        </div>
+      </div>
+
+      <!-- Quiz Progress Bar -->
+      <div class="quiz-progress-bar-wrap">
+        <div class="quiz-progress-meta">
+          <span class="quiz-step-badge" id="quizStepLabel">Question 1 of 7</span>
+          <span class="quiz-step-percent" id="quizStepPercent">14%</span>
+        </div>
+        <div class="progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="7" aria-valuenow="1">
+          <div class="progress-fill" id="progressFill" style="width: 14.3%;"></div>
+        </div>
+      </div>
+
+      <!-- Questionnaire Form -->
+      <form id="advisorWizard" method="POST" action="/recommend">
+        
+        <!-- ==================== QUESTION 1: RAM ==================== -->
+        <div class="wizard-step active" id="step-1" data-step="1" data-question="ram">
+          <div class="step-header">
+            <div class="question-header-row">
+              <div>
+                <h2 class="step-title"><span>🧠</span> 1. Available RAM Size</h2>
+                <p class="step-desc">How much memory (RAM) is installed on this computer?</p>
+              </div>
+              <div class="voice-actions">
+                <button type="button" class="voice-action-btn speak-question-btn" data-question-id="ram" title="Listen to question & options aloud">
+                  <span class="icon">🔊</span> Listen
+                </button>
+                <button type="button" class="voice-action-btn record-question-btn" data-question-name="ram" title="Answer by voice">
+                  <span class="icon">🎤</span> Answer by Voice
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="options-grid" data-question="ram">
+            <label class="option-card" data-val="<2GB">
+              <input type="radio" name="ram" value="<2GB">
+              <div class="card-top">
+                <span class="option-icon">⚡</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Less than 2 GB</div>
+              <div class="option-hint">Older netbooks or legacy hardware</div>
+            </label>
+
+            <label class="option-card" data-val="2GB - 4GB">
+              <input type="radio" name="ram" value="2GB - 4GB">
+              <div class="card-top">
+                <span class="option-icon">💻</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">2 GB – 4 GB</div>
+              <div class="option-hint">Budget laptops or older desktop PCs</div>
+            </label>
+
+            <label class="option-card" data-val="4GB - 8GB">
+              <input type="radio" name="ram" value="4GB - 8GB">
+              <div class="card-top">
+                <span class="option-icon">🚀</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">4 GB – 8 GB</div>
+              <div class="option-hint">Standard modern laptops and desktops</div>
+            </label>
+
+            <label class="option-card" data-val="8GB - 16GB">
+              <input type="radio" name="ram" value="8GB - 16GB">
+              <div class="card-top">
+                <span class="option-icon">🔥</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">8 GB – 16 GB</div>
+              <div class="option-hint">Fast multitasking &amp; programming</div>
+            </label>
+
+            <label class="option-card" data-val="16GB+">
+              <input type="radio" name="ram" value="16GB+">
+              <div class="card-top">
+                <span class="option-icon">👑</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">16 GB or More</div>
+              <div class="option-hint">High-end gaming or developer rig</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- ==================== QUESTION 2: EXPERIENCE ==================== -->
+        <div class="wizard-step" id="step-2" data-step="2" data-question="experience">
+          <div class="step-header">
+            <div class="question-header-row">
+              <div>
+                <h2 class="step-title"><span>🎯</span> 2. Computer Experience Level</h2>
+                <p class="step-desc">How comfortable are you with computers and system settings?</p>
+              </div>
+              <div class="voice-actions">
+                <button type="button" class="voice-action-btn speak-question-btn" data-question-id="experience" title="Listen to question & options aloud">
+                  <span class="icon">🔊</span> Listen
+                </button>
+                <button type="button" class="voice-action-btn record-question-btn" data-question-name="experience" title="Answer by voice">
+                  <span class="icon">🎤</span> Answer by Voice
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="options-grid" data-question="experience">
+            <label class="option-card" data-val="Beginner">
+              <input type="radio" name="experience" value="Beginner">
+              <div class="card-top">
+                <span class="option-icon">🌱</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Beginner</div>
+              <div class="option-hint">Prefer intuitive graphical menus and app stores. Minimal command line.</div>
+            </label>
+
+            <label class="option-card" data-val="Intermediate">
+              <input type="radio" name="experience" value="Intermediate">
+              <div class="card-top">
+                <span class="option-icon">🛠️</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Intermediate</div>
+              <div class="option-hint">Comfortable with system settings, drivers, and basic terminal commands.</div>
+            </label>
+
+            <label class="option-card" data-val="Advanced">
+              <input type="radio" name="experience" value="Advanced">
+              <div class="card-top">
+                <span class="option-icon">🧙‍♂️</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Advanced / Power User</div>
+              <div class="option-hint">Love full system control, config files, package management, and custom setups.</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- ==================== QUESTION 3: PURPOSE ==================== -->
+        <div class="wizard-step" id="step-3" data-step="3" data-question="purpose">
+          <div class="step-header">
+            <div class="question-header-row">
+              <div>
+                <h2 class="step-title"><span>🎯</span> 3. Main Purpose</h2>
+                <p class="step-desc">What will you primarily use this Linux distribution for?</p>
+              </div>
+              <div class="voice-actions">
+                <button type="button" class="voice-action-btn speak-question-btn" data-question-id="purpose" title="Listen to question & options aloud">
+                  <span class="icon">🔊</span> Listen
+                </button>
+                <button type="button" class="voice-action-btn record-question-btn" data-question-name="purpose" title="Answer by voice">
+                  <span class="icon">🎤</span> Answer by Voice
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="options-grid" data-question="purpose">
+            <label class="option-card" data-val="Programming">
+              <input type="radio" name="purpose" value="Programming">
+              <div class="card-top">
+                <span class="option-icon">💻</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Programming</div>
+              <div class="option-hint">Python, Node, C++, Docker, VS Code, Git, containers, and web dev.</div>
+            </label>
+
+            <label class="option-card" data-val="Gaming">
+              <input type="radio" name="purpose" value="Gaming">
+              <div class="card-top">
+                <span class="option-icon">🎮</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Gaming</div>
+              <div class="option-hint">Steam, Proton, Lutris, Discord, and optimal graphics card drivers.</div>
+            </label>
+
+            <label class="option-card" data-val="Office">
+              <input type="radio" name="purpose" value="Office">
+              <div class="card-top">
+                <span class="option-icon">📑</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Office</div>
+              <div class="option-hint">Documents, spreadsheets, PDF management, printers, and rock-solid stability.</div>
+            </label>
+
+            <label class="option-card" data-val="Education">
+              <input type="radio" name="purpose" value="Education">
+              <div class="card-top">
+                <span class="option-icon">🎓</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Education</div>
+              <div class="option-hint">Homework, school apps, learning coding, science, and study environments.</div>
+            </label>
+
+            <label class="option-card" data-val="Security">
+              <input type="radio" name="purpose" value="Security">
+              <div class="card-top">
+                <span class="option-icon">🛡️</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Security</div>
+              <div class="option-hint">Ethical hacking, penetration testing, network defense, or forensics.</div>
+            </label>
+
+            <label class="option-card" data-val="General use">
+              <input type="radio" name="purpose" value="General use">
+              <div class="card-top">
+                <span class="option-icon">🌐</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">General Use</div>
+              <div class="option-hint">Web browsing, YouTube, Netflix, music, email, and everyday tasks.</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- ==================== QUESTION 4: CPU ==================== -->
+        <div class="wizard-step" id="step-4" data-step="4" data-question="cpu">
+          <div class="step-header">
+            <div class="question-header-row">
+              <div>
+                <h2 class="step-title"><span>⚙️</span> 4. Processor (CPU) Tier</h2>
+                <p class="step-desc">What type of processor does your computer have?</p>
+              </div>
+              <div class="voice-actions">
+                <button type="button" class="voice-action-btn speak-question-btn" data-question-id="cpu" title="Listen to question & options aloud">
+                  <span class="icon">🔊</span> Listen
+                </button>
+                <button type="button" class="voice-action-btn record-question-btn" data-question-name="cpu" title="Answer by voice">
+                  <span class="icon">🎤</span> Answer by Voice
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="options-grid two-cols" data-question="cpu">
+            <label class="option-card" data-val="Older / Low-end Dual Core (Atom, Celeron, Core 2 Duo)">
+              <input type="radio" name="cpu" value="Older / Low-end Dual Core (Atom, Celeron, Core 2 Duo)">
+              <div class="card-top">
+                <span class="option-icon">🕰️</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Older / Budget Dual Core</div>
+              <div class="option-hint">Intel Celeron, Pentium, Atom, Core 2 Duo, or older AMD Athlon</div>
+            </label>
+
+            <label class="option-card" data-val="Mid-range Quad Core (Intel i3/i5, AMD Ryzen 3/5)">
+              <input type="radio" name="cpu" value="Mid-range Quad Core (Intel i3/i5, AMD Ryzen 3/5)">
+              <div class="card-top">
+                <span class="option-icon">⚡</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Mid-range Quad Core</div>
+              <div class="option-hint">Intel Core i3 / i5, AMD Ryzen 3 / 5, or modern quad core</div>
+            </label>
+
+            <label class="option-card" data-val="High-end Multi-core (Intel i7/i9, AMD Ryzen 7/9)">
+              <input type="radio" name="cpu" value="High-end Multi-core (Intel i7/i9, AMD Ryzen 7/9)">
+              <div class="card-top">
+                <span class="option-icon">🏎️</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">High-End Multi-Core</div>
+              <div class="option-hint">Intel Core i7 / i9, AMD Ryzen 7 / 9, or workstation processors</div>
+            </label>
+
+            <label class="option-card" data-val="ARM / Raspberry Pi">
+              <input type="radio" name="cpu" value="ARM / Raspberry Pi">
+              <div class="card-top">
+                <span class="option-icon">🍓</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">ARM / Single Board Computer</div>
+              <div class="option-hint">Raspberry Pi 4/5, Pine64, or Apple Silicon via Asahi</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- ==================== QUESTION 5: STORAGE ==================== -->
+        <div class="wizard-step" id="step-5" data-step="5" data-question="storage">
+          <div class="step-header">
+            <div class="question-header-row">
+              <div>
+                <h2 class="step-title"><span>💾</span> 5. Available Storage Space</h2>
+                <p class="step-desc">How much disk space can you allocate for your Linux installation?</p>
+              </div>
+              <div class="voice-actions">
+                <button type="button" class="voice-action-btn speak-question-btn" data-question-id="storage" title="Listen to question & options aloud">
+                  <span class="icon">🔊</span> Listen
+                </button>
+                <button type="button" class="voice-action-btn record-question-btn" data-question-name="storage" title="Answer by voice">
+                  <span class="icon">🎤</span> Answer by Voice
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="options-grid" data-question="storage">
+            <label class="option-card" data-val="<20GB">
+              <input type="radio" name="storage" value="<20GB">
+              <div class="card-top">
+                <span class="option-icon">📁</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">&lt; 20 GB</div>
+              <div class="option-hint">Very tight partition or small USB stick</div>
+            </label>
+
+            <label class="option-card" data-val="20GB - 50GB">
+              <input type="radio" name="storage" value="20GB - 50GB">
+              <div class="card-top">
+                <span class="option-icon">💽</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">20 GB – 50 GB</div>
+              <div class="option-hint">Standard dual-boot partition</div>
+            </label>
+
+            <label class="option-card" data-val="50GB - 100GB">
+              <input type="radio" name="storage" value="50GB - 100GB">
+              <div class="card-top">
+                <span class="option-icon">📦</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">50 GB – 100 GB</div>
+              <div class="option-hint">Comfortable room for apps &amp; documents</div>
+            </label>
+
+            <label class="option-card" data-val="100GB+">
+              <input type="radio" name="storage" value="100GB+">
+              <div class="card-top">
+                <span class="option-icon">🏰</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">100 GB+</div>
+              <div class="option-hint">Dedicated drive for gaming &amp; media</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- ==================== QUESTION 6: PREFERENCE ==================== -->
+        <div class="wizard-step" id="step-6" data-step="6" data-question="preference">
+          <div class="step-header">
+            <div class="question-header-row">
+              <div>
+                <h2 class="step-title"><span>⭐</span> 6. Preference</h2>
+                <p class="step-desc">What characteristic do you value most in an operating system?</p>
+              </div>
+              <div class="voice-actions">
+                <button type="button" class="voice-action-btn speak-question-btn" data-question-id="preference" title="Listen to question & options aloud">
+                  <span class="icon">🔊</span> Listen
+                </button>
+                <button type="button" class="voice-action-btn record-question-btn" data-question-name="preference" title="Answer by voice">
+                  <span class="icon">🎤</span> Answer by Voice
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="options-grid" data-question="preference">
+            <label class="option-card" data-val="Easy to use">
+              <input type="radio" name="preference" value="Easy to use">
+              <div class="card-top">
+                <span class="option-icon">🍰</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Easy to Use</div>
+              <div class="option-hint">Familiar desktop, intuitive graphical apps, works out of the box.</div>
+            </label>
+
+            <label class="option-card" data-val="Lightweight">
+              <input type="radio" name="preference" value="Lightweight">
+              <div class="card-top">
+                <span class="option-icon">🪶</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Lightweight</div>
+              <div class="option-hint">Blazing speed, low RAM footprint, extended battery life.</div>
+            </label>
+
+            <label class="option-card" data-val="Customizable">
+              <input type="radio" name="preference" value="Customizable">
+              <div class="card-top">
+                <span class="option-icon">🎨</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Customizable</div>
+              <div class="option-hint">Ability to tailor every theme, window behavior, and system layer.</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- ==================== QUESTION 7: PREVIOUS EXPERIENCE ==================== -->
+        <div class="wizard-step" id="step-7" data-step="7" data-question="prev_experience">
+          <div class="step-header">
+            <div class="question-header-row">
+              <div>
+                <h2 class="step-title"><span>🐧</span> 7. Previous Linux Experience</h2>
+                <p class="step-desc">Have you installed or experimented with Linux before?</p>
+              </div>
+              <div class="voice-actions">
+                <button type="button" class="voice-action-btn speak-question-btn" data-question-id="prev_experience" title="Listen to question & options aloud">
+                  <span class="icon">🔊</span> Listen
+                </button>
+                <button type="button" class="voice-action-btn record-question-btn" data-question-name="prev_experience" title="Answer by voice">
+                  <span class="icon">🎤</span> Answer by Voice
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="options-grid two-cols" data-question="prev_experience">
+            <label class="option-card" data-val="None / First time">
+              <input type="radio" name="prev_experience" value="None / First time">
+              <div class="card-top">
+                <span class="option-icon">✨</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">None / Complete First Timer</div>
+              <div class="option-hint">Coming straight from Windows or macOS; never used Linux before.</div>
+            </label>
+
+            <label class="option-card" data-val="Tested in VM or Live USB">
+              <input type="radio" name="prev_experience" value="Tested in VM or Live USB">
+              <div class="card-top">
+                <span class="option-icon">🧪</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Tested in VirtualBox / Live USB</div>
+              <div class="option-hint">Experimented with Linux briefly inside a virtual machine or live session.</div>
+            </label>
+
+            <label class="option-card" data-val="Dual boot or casual user">
+              <input type="radio" name="prev_experience" value="Dual boot or casual user">
+              <div class="card-top">
+                <span class="option-icon">⚖️</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Dual Boot or Casual User</div>
+              <div class="option-hint">Have installed Ubuntu or Mint in the past and know basic terminal commands.</div>
+            </label>
+
+            <label class="option-card" data-val="Daily driver / Server experience">
+              <input type="radio" name="prev_experience" value="Daily driver / Server experience">
+              <div class="card-top">
+                <span class="option-icon">🌐</span>
+                <span class="check-badge">✓</span>
+              </div>
+              <div class="option-title">Daily Driver / Server Experience</div>
+              <div class="option-hint">Used Linux on production cloud VPS, Raspberry Pi, or daily laptop.</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Wizard Navigation Actions -->
+        <div class="wizard-actions">
+          <button type="button" id="prevStepBtn" class="btn btn-secondary" style="display: none;">
+            ← Back
+          </button>
+          <div class="quiz-nav-warning" id="quizValidationMsg" style="display: none;">
+            <span>⚠️ Please select an option to continue</span>
+          </div>
+          <button type="button" id="nextStepBtn" class="btn btn-primary" disabled>
+            Next →
+          </button>
+          <button type="submit" id="submitQuizBtn" class="btn btn-accent" style="display: none;" disabled>
+            🔍 Get My Recommendation
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Loading Animation Screen -->
+    <div class="advisor-loading" id="advisorLoading">
+      <div class="spinner"></div>
+      <h3 class="loading-text">Analyzing Your Configuration</h3>
+      <p class="loading-sub" id="loadingSubText">Evaluating CPU architecture &amp; RAM ceilings...</p>
+    </div>
+
+    <!-- ==================== RECOMMENDATION RESULTS ==================== -->
+    <div class="result-container {% if result %}active{% endif %}" id="resultContainer">
+      {% set best = result.best_match if result else None %}
+      {% set alts = result.alternatives if result else [] %}
+      {% set warning = result.advisory_warning if result else None %}
+
+      <!-- Voice Result Bar (Listen to Result & Stop) -->
+      <div class="result-voice-bar">
+        <button type="button" class="btn btn-primary voice-result-btn" id="listenResultBtn">
+          <span>🔊</span> Listen to Result
+        </button>
+        <button type="button" class="btn btn-secondary voice-result-btn" id="stopAudioBtn" style="display: none;">
+          <span>⏹️</span> Stop Audio
+        </button>
+        <span class="voice-reading-badge" id="voiceReadingStatus" style="display: none;">
+          <span class="pulse-dot"></span> Reading aloud...
+        </span>
+      </div>
+
+      <!-- Top Match Hero Card -->
+      <div class="best-match-card">
+        <div class="match-header-row">
+          <div class="match-identity">
+            <img src="/static/images/distros/{{ best.id if best else 'linux-mint' }}.svg" alt="{{ best.name if best else 'Best Match' }}" class="distro-logo-large" id="resLogo">
+            <div>
+              <span class="match-badge" id="resBadge">{{ best.badge if best else 'Top Recommended Match' }}</span>
+              <h2 class="match-distro-name" id="resDistroName">{{ best.name if best else '' }}</h2>
+              <p class="match-tagline" id="resTagline">{{ best.tagline if best else '' }}</p>
+            </div>
+          </div>
+
+          <!-- Circular Score Gauge -->
+          <div class="gauge-box">
+            <div class="circular-gauge">
+              <svg class="gauge-svg" viewBox="0 0 80 80">
+                <circle class="gauge-bg" cx="40" cy="40" r="36" />
+                <circle class="gauge-progress" id="gaugeCircle" cx="40" cy="40" r="36" 
+                  {% if best %}
+                  style="stroke-dashoffset: {{ 226 - (best.match_percentage / 100 * 226) }};"
+                  {% endif %}
+                />
+              </svg>
+              <div class="gauge-text" id="gaugeScoreText">{{ best.match_percentage if best else 95 }}%</div>
+            </div>
+            <div class="gauge-label">
+              <span class="gauge-title">Match Score</span>
+              <span class="gauge-desc">Optimal Fit</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Technical Specification Matrix Chips -->
+        <div class="specs-matrix">
+          <div class="spec-chip">
+            <span class="spec-key">RAM Requirement</span>
+            <span class="spec-val" id="specRam">{{ best.min_ram_gb if best else '2' }}GB Min / {{ best.rec_ram_gb if best else '4' }}GB Rec</span>
+          </div>
+          <div class="spec-chip">
+            <span class="spec-key">Storage Needed</span>
+            <span class="spec-val" id="specStorage">{{ best.min_storage_gb if best else '20' }}GB Min / {{ best.rec_storage_gb if best else '50' }}GB Rec</span>
+          </div>
+          <div class="spec-chip">
+            <span class="spec-key">Desktop UI</span>
+            <span class="spec-val" id="specDE">{{ best.desktop_environment if best else 'Cinnamon' }}</span>
+          </div>
+          <div class="spec-chip">
+            <span class="spec-key">Package Manager</span>
+            <span class="spec-val" id="specPkg">{{ best.package_manager if best else 'APT / Flatpak' }}</span>
+          </div>
+          <div class="spec-chip">
+            <span class="spec-key">Base Family</span>
+            <span class="spec-val" id="specFamily">{{ best.family if best else 'Ubuntu' }}</span>
+          </div>
+          <div class="spec-chip">
+            <span class="spec-key">Release Cycle</span>
+            <span class="spec-val" id="specRelease">{{ best.release_model if best else 'Fixed LTS' }}</span>
+          </div>
+        </div>
+
+        <!-- Security / Advisory Warning if applicable -->
+        <div class="advisory-box" id="resAdvisoryBox" {% if not warning %}style="display: none;"{% endif %}>
+          <div class="advisory-icon">⚠️</div>
+          <div class="advisory-text" id="resAdvisoryText">{{ warning if warning else '' }}</div>
+        </div>
+
+        <!-- Reasons Why Recommended -->
+        <div class="reasons-box">
+          <h3 class="section-label">
+            <span>✨</span> Why We Recommend This for Your PC
+          </h3>
+          <ul class="reasons-list" id="resReasonsList">
+            {% if best and best.reasons %}
+              {% for r in best.reasons %}
+                <li class="reason-item">
+                  <span class="reason-bullet">✓</span>
+                  <span>{{ r }}</span>
+                </li>
+              {% endfor %}
+            {% endif %}
+          </ul>
+        </div>
+
+        <!-- Pros & Cons Grid -->
+        <div class="pros-cons-grid">
+          <div class="pro-card">
+            <h4>
+              <span>👍</span> Key Advantages
+            </h4>
+            <ul class="pro-con-list" id="resProsList">
+              {% if best and best.pros %}
+                {% for p in best.pros %}
+                  <li><span>+</span><span>{{ p }}</span></li>
+                {% endfor %}
+              {% endif %}
+            </ul>
+          </div>
+
+          <div class="con-card">
+            <h4>
+              <span>⚠️</span> Trade-offs &amp; Considerations
+            </h4>
+            <ul class="pro-con-list" id="resConsList">
+              {% if best and best.cons %}
+                {% for c in best.cons %}
+                  <li><span>-</span><span>{{ c }}</span></li>
+                {% endfor %}
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="result-actions">
+          <a href="{{ best.website if best else '#' }}" target="_blank" rel="noopener" class="btn btn-accent" id="resWebsiteBtn">
+            <span>🌐</span> Official Website &amp; Download ISO
+          </a>
+          <a href="/guide" class="btn btn-primary">
+            <span>📖</span> Beginner Installation Guide (USB &amp; BIOS)
+          </a>
+          <a href="/compare" class="btn btn-secondary" id="compareLink">
+            <span>⚖️</span> Compare with Alternatives
+          </a>
+        </div>
+      </div>
+
+      <!-- Alternatives Section -->
+      <div class="alternatives-section">
+        <h3 class="section-label">
+          <span>🔄</span> 2 Great Alternative Distributions
+        </h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1.25rem;">
+          These distributions also matched your criteria closely and are well worth exploring:
+        </p>
+
+        <div class="alternatives-grid" id="resAlternativesGrid">
+          {% if alts %}
+            {% for alt in alts %}
+              <div class="alt-card">
+                <div>
+                  <div class="alt-top">
+                    <div class="alt-identity">
+                      <img src="/static/images/distros/{{ alt.id }}.svg" alt="{{ alt.name }}" class="alt-logo">
+                      <div>
+                        <h4 class="alt-name">{{ alt.name }}</h4>
+                        <span class="spec-key">{{ alt.family }}</span>
+                      </div>
+                    </div>
+                    <span class="alt-match-tag">{{ alt.match_percentage }}% Match</span>
+                  </div>
+                  <p class="alt-tagline">{{ alt.tagline }}</p>
+                  <ul class="alt-reasons">
+                    {% for r in alt.reasons %}
+                      <li>{{ r }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                  <a href="/distro/{{ alt.id }}" class="btn btn-secondary" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 0.5rem;">View Profile</a>
+                  <a href="{{ alt.website }}" target="_blank" rel="noopener" class="btn btn-primary" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 0.5rem;">Website</a>
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Retake Quiz Button -->
+      <div class="retake-bar">
+        <button type="button" class="btn btn-secondary" id="retakeQuizBtn">
+          <span>🔄</span> Take the Questionnaire Again
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Community Trends / Recent Recommendations Feed -->
+{% if recent_recs %}
+<section class="container" style="margin-bottom: 4rem;">
+  <div style="border-top: 1px solid var(--border-subtle); padding-top: 3rem;">
+    <h3 class="section-label">
+      <span>📊</span> Recent Community Recommendations
+    </h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+      See what distributions our engine recently suggested to other users based on their hardware.
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+      {% for item in recent_recs %}
+      <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <strong style="color: var(--accent-indigo); font-size: 1.05rem;">{{ item.recommended_distro }}</strong>
+          <span style="font-size: 0.8rem; background: rgba(16, 185, 129, 0.15); color: var(--accent-green); padding: 0.2rem 0.5rem; border-radius: var(--radius-full); font-weight: 700;">{{ item.match_percentage }}%</span>
+        </div>
+        <div style="font-size: 0.82rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.2rem;">
+          <span>RAM: {{ item.ram }} • Storage: {{ item.storage }}</span>
+          <span>Purpose: {{ item.purpose }} • Exp: {{ item.experience }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Beginner Education / Why Switch Section -->
+<section class="container" style="margin-bottom: 4rem;">
+  <div style="border-top: 1px solid var(--border-subtle); padding-top: 3rem;">
+    <h3 class="section-label">
+      <span>💡</span> Why Millions of People Switch to Linux
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+      <div class="catalog-card">
+        <div style="font-size: 2rem; margin-bottom: 0.75rem;">🛡️</div>
+        <h4 style="margin-bottom: 0.5rem;">Immunity to Most Malware</h4>
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">No forced bloatware or predatory anti-virus subscriptions. Linux has strict Unix file permissions.</p>
+      </div>
+      <div class="catalog-card">
+        <div style="font-size: 2rem; margin-bottom: 0.75rem;">🚀</div>
+        <h4 style="margin-bottom: 0.5rem;">Revive Older Laptops</h4>
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">Modern Windows drops support for older CPUs. Distros like Lubuntu and Mint run fast on 10-year-old PCs.</p>
+      </div>
+      <div class="catalog-card">
+        <div style="font-size: 2rem; margin-bottom: 0.75rem;">🔒</div>
+        <h4 style="margin-bottom: 0.5rem;">Total Privacy &amp; Respect</h4>
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">No ads injected into your Start menu, no forced AI trackers scanning your documents, no forced reboots.</p>
+      </div>
+      <div class="catalog-card">
+        <div style="font-size: 2rem; margin-bottom: 0.75rem;">🎮</div>
+        <h4 style="margin-bottom: 0.5rem;">Gaming Has Arrived</h4>
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">Thanks to Valve's Steam Deck and Proton, thousands of AAA titles run flawlessly on Linux today.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

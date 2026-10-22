@@ -1,0 +1,4 @@
+# Optional dependencies for offline/local faster-whisper fallback
+# Not used or required for Vercel deployment
+faster-whisper>=1.0.0
+av<14.0.0
